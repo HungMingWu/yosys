@@ -10,25 +10,25 @@ CXXFLAGS = -MD -Wall -Wextra -ggdb
 LDLIBS = -lstdc++
 
 ifeq ($(CONFIG),clang-debug)
-CXXFLAGS += -std=c++11 -O0
+CXXFLAGS += -std=c++17 -O0
 endif
 
 ifeq ($(CONFIG),gcc-debug)
 CC = gcc
 CXX = gcc
-CXXFLAGS += -std=gnu++0x -O0
+CXXFLAGS += -std=c++17 -O0
 endif
 
 ifeq ($(CONFIG),profile)
 CC = gcc
 CXX = gcc
-CXXFLAGS += -std=gnu++0x -Os -DNDEBUG
+CXXFLAGS += -std=c++17 -Os -DNDEBUG
 endif
 
 ifeq ($(CONFIG),release)
 CC = gcc
 CXX = gcc
-CXXFLAGS += -std=gnu++0x -march=native -O3 -DNDEBUG
+CXXFLAGS += -std=c++17 -march=native -O3 -DNDEBUG
 endif
 
 all: demo scshell

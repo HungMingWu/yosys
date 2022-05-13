@@ -1,7 +1,7 @@
 
   **************************************************************************
   *                                                                        *
-  *                    The SubCircuit C++11 library                        *
+  *                    The SubCircuit C++17 library                        *
   *                                                                        *
   * An implementation of a modified Ullmann Subgraph Isomorphism Algorithm *
   * for coarse grain logic networks.                  by Claire Xenia Wolf *
@@ -20,12 +20,11 @@ A simple command line tool that exposes the features of the library is also
 included.
 
 
-C++11 Warning
+C++17 Warning
 -------------
 
-This project is written in C++11. Use appropriate compiler switches to compile
-it. Tested with clang version 3.0 and option -std=c++11. Also tested with gcc
-version 4.6.3 and option -std=c++0x.
+This project is written in C++17. Use appropriate compiler switches to compile
+it. Tested with clang version 3.0 and option -std=c++17.
 
 
 ========

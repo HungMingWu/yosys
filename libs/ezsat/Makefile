@@ -2,7 +2,7 @@
 CC = clang
 CXX = clang
 CXXFLAGS = -MD -Wall -Wextra -ggdb
-CXXFLAGS += -std=c++11 -O0
+CXXFLAGS += -std=c++17 -O0
 LDLIBS = ../minisat/Options.cc ../minisat/SimpSolver.cc ../minisat/Solver.cc ../minisat/System.cc -lm -lstdc++
 
 

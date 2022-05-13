@@ -87,7 +87,7 @@ all: top-all
 YOSYS_SRC := $(dir $(firstword $(MAKEFILE_LIST)))
 VPATH := $(YOSYS_SRC)
 
-CXXSTD ?= c++11
+CXXSTD ?= c++17
 CXXFLAGS := $(CXXFLAGS) -Wall -Wextra -ggdb -I. -I"$(YOSYS_SRC)" -MD -MP -D_YOSYS_ -fPIC -I$(PREFIX)/include
 LDLIBS := $(LDLIBS) -lstdc++ -lm
 PLUGIN_LDFLAGS :=
@@ -260,7 +260,7 @@ ABCMKARGS += ARCHFLAGS="-DABC_USE_STDINT_H"
 else ifeq ($(CONFIG),cygwin)
 CXX = gcc
 LD = gcc
-CXXFLAGS += -std=gnu++11 -Os
+CXXFLAGS += -std=gnu++17 -Os
 ABCMKARGS += ARCHFLAGS="-DABC_USE_STDINT_H"
 
 else ifeq ($(CONFIG),emcc)
@@ -974,16 +974,6 @@ qtcreator:
 	{ echo .; find backends frontends kernel libs passes -type f \( -name '*.h' -o -name '*.hh' \) -printf '%h\n' | sort -u; } > qtcreator.includes
 	touch qtcreator.config qtcreator.creator
 
-vcxsrc: $(GENFILES) $(EXTRA_TARGETS)
-	rm -rf yosys-win32-vcxsrc-$(YOSYS_VER){,.zip}
-	set -e; for f in `ls $(filter %.cc %.cpp,$(GENFILES)) $(addsuffix .cc,$(basename $(OBJS))) $(addsuffix .cpp,$(basename $(OBJS))) 2> /dev/null`; do \
-		echo "Analyse: $$f" >&2; cpp -std=c++11 -MM -I. -D_YOSYS_ $$f; done | sed 's,.*:,,; s,//*,/,g; s,/[^/]*/\.\./,/,g; y, \\,\n\n,;' | grep '^[^/]' | sort -u | grep -v kernel/version_ > srcfiles.txt
-	bash misc/create_vcxsrc.sh yosys-win32-vcxsrc $(YOSYS_VER) $(GIT_REV)
-	echo "namespace Yosys { extern const char *yosys_version_str; const char *yosys_version_str=\"Yosys (Version Information Unavailable)\"; }" > kernel/version.cc
-	zip yosys-win32-vcxsrc-$(YOSYS_VER)/genfiles.zip $(GENFILES) kernel/version.cc
-	zip -r yosys-win32-vcxsrc-$(YOSYS_VER).zip yosys-win32-vcxsrc-$(YOSYS_VER)/
-	rm -f srcfiles.txt kernel/version.cc
-
 ifeq ($(CONFIG),mxe)
 mxebin: $(TARGETS) $(EXTRA_TARGETS)
 	rm -rf yosys-win32-mxebin-$(YOSYS_VER){,.zip}
@@ -1079,5 +1069,5 @@ echo-abc-rev:
 -include kernel/*.d
 -include techlibs/*/*.d
 
-.PHONY: all top-all abc test install install-abc manual clean mrproper qtcreator coverage vcxsrc mxebin
+.PHONY: all top-all abc test install install-abc manual clean mrproper qtcreator coverage mxebin
 .PHONY: config-clean config-clang config-gcc config-gcc-static config-gcc-4.8 config-afl-gcc config-gprof config-sudo
