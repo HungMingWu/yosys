@@ -82,8 +82,7 @@ struct ShareWorker
 
 		while (!queue_bits.empty())
 		{
-			pool<ModWalker::PortBit> portbits;
-			modwalker.get_drivers(portbits, queue_bits);
+			const pool<ModWalker::PortBit> portbits = modwalker.get_drivers(queue_bits);
 			queue_bits.clear();
 
 			for (auto &pbit : portbits) {
@@ -742,10 +741,9 @@ struct ShareWorker
 		if (forbidden_controls_cache.count(cell))
 			return forbidden_controls_cache.at(cell);
 
-		pool<ModWalker::PortBit> pbits;
 		pool<RTLIL::Cell*> consumer_cells;
 
-		modwalker.get_consumers(pbits, modwalker.cell_outputs[cell]);
+		const pool<ModWalker::PortBit> pbits = modwalker.get_consumers(modwalker.cell_outputs[cell]);
 
 		for (auto &bit : pbits) {
 			if ((bit.cell->type == ID($mux) || bit.cell->type == ID($pmux)) && bit.port == ID::S)

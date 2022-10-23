@@ -410,119 +410,115 @@ struct ModWalker
 	// get_* methods -- single RTLIL::SigBit
 
 	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	inline pool<PortBit> get_drivers(RTLIL::SigBit bit) const
 	{
-		bool found = false;
+		pool<PortBit> result;
 		if (signal_drivers.count(bit)) {
 			const pool<PortBit> &r = signal_drivers.at(bit);
 			result.insert(r.begin(), r.end());
-			found = true;
 		}
-		return found;
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, RTLIL::SigBit bit) const
+	inline pool<PortBit> get_consumers(RTLIL::SigBit bit) const
 	{
-		bool found = false;
+		pool<PortBit> result;
 		if (signal_consumers.count(bit)) {
 			const pool<PortBit> &r = signal_consumers.at(bit);
 			result.insert(r.begin(), r.end());
-			found = true;
 		}
-		return found;
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	inline pool<RTLIL::SigBit> get_inputs(RTLIL::SigBit bit) const
 	{
-		bool found = false;
+		pool<RTLIL::SigBit> result;
 		if (signal_inputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+			result.insert(bit);
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigBit bit) const
+	inline pool<RTLIL::SigBit> get_outputs(RTLIL::SigBit bit) const
 	{
-		bool found = false;
+		pool<RTLIL::SigBit> result;
 		if (signal_outputs.count(bit))
-			result.insert(bit), found = true;
-		return found;
+			result.insert(bit);
+		return result;
 	}
 
 	// get_* methods -- container of RTLIL::SigBit's (always by reference)
 
 	template<typename T>
-	inline bool get_drivers(pool<PortBit> &result, const T &bits) const
+	inline pool<PortBit> get_drivers(const T &bits) const
 	{
-		bool found = false;
+		pool<PortBit> result;
 		for (RTLIL::SigBit bit : bits)
 			if (signal_drivers.count(bit)) {
 				const pool<PortBit> &r = signal_drivers.at(bit);
 				result.insert(r.begin(), r.end());
-				found = true;
 			}
-		return found;
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_consumers(pool<PortBit> &result, const T &bits) const
+	inline pool<PortBit> get_consumers(const T &bits) const
 	{
-		bool found = false;
+		pool<PortBit> result;
 		for (RTLIL::SigBit bit : bits)
 			if (signal_consumers.count(bit)) {
 				const pool<PortBit> &r = signal_consumers.at(bit);
 				result.insert(r.begin(), r.end());
-				found = true;
 			}
-		return found;
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_inputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	inline pool<RTLIL::SigBit> get_inputs(const T &bits) const
 	{
-		bool found = false;
+		pool<RTLIL::SigBit> result;
 		for (RTLIL::SigBit bit : bits)
 			if (signal_inputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+				result.insert(bit);
+		return result;
 	}
 
 	template<typename T>
-	inline bool get_outputs(pool<RTLIL::SigBit> &result, const T &bits) const
+	inline pool<RTLIL::SigBit> get_outputs(const T &bits) const
 	{
-		bool found = false;
+		pool<RTLIL::SigBit> result;
 		for (RTLIL::SigBit bit : bits)
 			if (signal_outputs.count(bit))
-				result.insert(bit), found = true;
-		return found;
+				result.insert(bit);
+		return result;
 	}
 
 	// get_* methods -- call by RTLIL::SigSpec (always by value)
 
-	bool get_drivers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	pool<PortBit> get_drivers(RTLIL::SigSpec signal) const
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_drivers(result, bits);
+		const std::vector<RTLIL::SigBit> bits = sigmap(signal);
+		return get_drivers(bits);
 	}
 
-	bool get_consumers(pool<PortBit> &result, RTLIL::SigSpec signal) const
+	pool<PortBit> get_consumers(RTLIL::SigSpec signal) const
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_consumers(result, bits);
+		const std::vector<RTLIL::SigBit> bits = sigmap(signal);
+		return get_consumers(bits);
 	}
 
-	bool get_inputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	pool<RTLIL::SigBit> get_inputs(RTLIL::SigSpec signal) const
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_inputs(result, bits);
+		const std::vector<RTLIL::SigBit> bits = sigmap(signal);
+		return get_inputs(bits);
 	}
 
-	bool get_outputs(pool<RTLIL::SigBit> &result, RTLIL::SigSpec signal) const
+	pool<RTLIL::SigBit> get_outputs(RTLIL::SigSpec signal) const
 	{
-		std::vector<RTLIL::SigBit> bits = sigmap(signal);
-		return get_outputs(result, bits);
+		const std::vector<RTLIL::SigBit> bits = sigmap(signal);
+		return get_outputs(bits);
 	}
 
 	// has_* methods -- call by reference
@@ -535,42 +531,42 @@ struct ModWalker
 
 	template<typename T>
 	inline bool has_consumers(const T &sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+		const pool<PortBit> result = get_consumers(sig);
+		return !result.empty();
 	}
 
 	template<typename T>
 	inline bool has_inputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		const pool<RTLIL::SigBit> result = get_inputs(sig);
+		return !result.empty();
 	}
 
 	template<typename T>
 	inline bool has_outputs(const T &sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		const pool<RTLIL::SigBit> result = get_outputs(sig);
+		return !result.empty();
 	}
 
 	// has_* methods -- call by value
 
 	inline bool has_drivers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_drivers(result, sig);
+		const pool<PortBit> result = get_drivers(sig);
+		return !result.empty();
 	}
 
 	inline bool has_consumers(RTLIL::SigSpec sig) const {
-		pool<PortBit> result;
-		return get_consumers(result, sig);
+		const pool<PortBit> result = get_consumers(sig);
+		return !result.empty();
 	}
 
 	inline bool has_inputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_inputs(result, sig);
+		const pool<RTLIL::SigBit> result = get_inputs(sig);
+		return !result.empty();
 	}
 
 	inline bool has_outputs(RTLIL::SigSpec sig) const {
-		pool<RTLIL::SigBit> result;
-		return get_outputs(result, sig);
+		const pool<RTLIL::SigBit> result = get_outputs(sig);
+		return !result.empty();
 	}
 };
 

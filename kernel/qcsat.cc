@@ -40,8 +40,7 @@ void QuickConeSat::prepare()
 {
 	while (!bits_queue.empty())
 	{
-		pool<ModWalker::PortBit> portbits;
-		modwalker.get_drivers(portbits, bits_queue);
+		const pool<ModWalker::PortBit> portbits = modwalker.get_drivers(bits_queue);
 
 		for (auto bit : bits_queue)
 			if (bit.wire && bit.wire->get_bool_attribute(ID::onehot) && !imported_onehot.count(bit.wire))

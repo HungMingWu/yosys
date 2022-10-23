@@ -81,8 +81,7 @@ struct InitValWorker
 		// Setting this temporarily to x takes care of any logic loops
 		initconst_bits[bit] = State::Sx;
 
-		pool<ModWalker::PortBit> portbits;
-		modwalker.get_drivers(portbits, {bit});
+		const pool<ModWalker::PortBit> portbits = modwalker.get_drivers({bit});
 
 		if (portbits.size() != 1)
 			return State::Sx;
@@ -217,8 +216,7 @@ struct InitValWorker
 
 		used_bits[bit] = true; // Temporarily set to guard against logic loops
 
-		pool<ModWalker::PortBit> portbits;
-		modwalker.get_consumers(portbits, {bit});
+		const pool<ModWalker::PortBit> portbits = modwalker.get_consumers({bit});
 
 		for (auto portbit : portbits) {
 			RTLIL::Cell *cell = portbit.cell;
