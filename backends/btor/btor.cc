@@ -99,13 +99,13 @@ struct BtorWorker
 		va_end(ap);
 	}
 
-	template<typename T>
-	string getinfo(T *obj, bool srcsym = false)
+	template <typename T>
+	string getinfo(const T &obj, bool srcsym = false)
 	{
-		string infostr = log_id(obj);
+		string infostr = log_id(&obj);
 		if (!srcsym && !print_internal_names && infostr[0] == '$') return "";
-		if (obj->attributes.count(ID::src)) {
-			string src = obj->attributes.at(ID::src).decode_string().c_str();
+		if (obj.attributes.count(ID::src)) {
+			string src = obj.attributes.at(ID::src).decode_string().c_str();
 			if (srcsym && infostr[0] == '$') {
 				std::replace(src.begin(), src.end(), ' ', '_');
 				if (srcsymbols.count(src) || module->count_id("\\" + src)) {
@@ -259,12 +259,12 @@ struct BtorWorker
 				btorf("%d slt %d %d %d\n", nid_b_ltz, sid_bit, nid_b, nid_zero);
 
 				nid = next_nid++;
-				btorf("%d ite %d %d %d %d%s\n", nid, sid, nid_b_ltz, nid_l, nid_r, getinfo(cell).c_str());
+				btorf("%d ite %d %d %d %d%s\n", nid, sid, nid_b_ltz, nid_l, nid_r, getinfo(*cell).c_str());
 			}
 			else
 			{
 				nid = next_nid++;
-				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(cell).c_str());
+				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -305,7 +305,7 @@ struct BtorWorker
 
 			int sid = get_bv_sid(width);
 			int nid = next_nid++;
-			btorf("%d %c%s %d %d %d%s\n", nid, a_signed || b_signed ? 's' : 'u', btor_op.c_str(), sid, nid_a, nid_b, getinfo(cell).c_str());
+			btorf("%d %c%s %d %d %d%s\n", nid, a_signed || b_signed ? 's' : 'u', btor_op.c_str(), sid, nid_a, nid_b, getinfo(*cell).c_str());
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
 
@@ -331,12 +331,12 @@ struct BtorWorker
 
 			if (cell->type == ID($_ANDNOT_)) {
 				btorf("%d not %d %d\n", nid1, sid, nid_b);
-				btorf("%d and %d %d %d%s\n", nid2, sid, nid_a, nid1, getinfo(cell).c_str());
+				btorf("%d and %d %d %d%s\n", nid2, sid, nid_a, nid1, getinfo(*cell).c_str());
 			}
 
 			if (cell->type == ID($_ORNOT_)) {
 				btorf("%d not %d %d\n", nid1, sid, nid_b);
-				btorf("%d or %d %d %d%s\n", nid2, sid, nid_a, nid1, getinfo(cell).c_str());
+				btorf("%d or %d %d %d%s\n", nid2, sid, nid_a, nid1, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -358,13 +358,13 @@ struct BtorWorker
 			if (cell->type == ID($_OAI3_)) {
 				btorf("%d or %d %d %d\n", nid1, sid, nid_a, nid_b);
 				btorf("%d and %d %d %d\n", nid2, sid, nid1, nid_c);
-				btorf("%d not %d %d%s\n", nid3, sid, nid2, getinfo(cell).c_str());
+				btorf("%d not %d %d%s\n", nid3, sid, nid2, getinfo(*cell).c_str());
 			}
 
 			if (cell->type == ID($_AOI3_)) {
 				btorf("%d and %d %d %d\n", nid1, sid, nid_a, nid_b);
 				btorf("%d or %d %d %d\n", nid2, sid, nid1, nid_c);
-				btorf("%d not %d %d%s\n", nid3, sid, nid2, getinfo(cell).c_str());
+				btorf("%d not %d %d%s\n", nid3, sid, nid2, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -389,14 +389,14 @@ struct BtorWorker
 				btorf("%d or %d %d %d\n", nid1, sid, nid_a, nid_b);
 				btorf("%d or %d %d %d\n", nid2, sid, nid_c, nid_d);
 				btorf("%d and %d %d %d\n", nid3, sid, nid1, nid2);
-				btorf("%d not %d %d%s\n", nid4, sid, nid3, getinfo(cell).c_str());
+				btorf("%d not %d %d%s\n", nid4, sid, nid3, getinfo(*cell).c_str());
 			}
 
 			if (cell->type == ID($_AOI4_)) {
 				btorf("%d and %d %d %d\n", nid1, sid, nid_a, nid_b);
 				btorf("%d and %d %d %d\n", nid2, sid, nid_c, nid_d);
 				btorf("%d or %d %d %d\n", nid3, sid, nid1, nid2);
-				btorf("%d not %d %d%s\n", nid4, sid, nid3, getinfo(cell).c_str());
+				btorf("%d not %d %d%s\n", nid4, sid, nid3, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -428,9 +428,9 @@ struct BtorWorker
 
 			int nid = next_nid++;
 			if (cell->type.in(ID($lt), ID($le), ID($ge), ID($gt))) {
-				btorf("%d %c%s %d %d %d%s\n", nid, a_signed || b_signed ? 's' : 'u', btor_op.c_str(), sid, nid_a, nid_b, getinfo(cell).c_str());
+				btorf("%d %c%s %d %d %d%s\n", nid, a_signed || b_signed ? 's' : 'u', btor_op.c_str(), sid, nid_a, nid_b, getinfo(*cell).c_str());
 			} else {
-				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(cell).c_str());
+				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -465,7 +465,7 @@ struct BtorWorker
 				log_assert(!btor_op.empty());
 				int sid = get_bv_sid(width);
 				nid = next_nid++;
-				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(cell).c_str());
+				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(*cell).c_str());
 			}
 
 			if (GetSize(sig) < width) {
@@ -505,9 +505,9 @@ struct BtorWorker
 
 			int nid = next_nid++;
 			if (btor_op != "not")
-				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(cell).c_str());
+				btorf("%d %s %d %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, nid_b, getinfo(*cell).c_str());
 			else
-				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(cell).c_str());
+				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(*cell).c_str());
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
 
@@ -538,11 +538,11 @@ struct BtorWorker
 
 			if (cell->type == ID($reduce_xnor)) {
 				int nid2 = next_nid++;
-				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(cell).c_str());
+				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(*cell).c_str());
 				btorf("%d not %d %d\n", nid2, sid, nid);
 				nid = nid2;
 			} else {
-				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(cell).c_str());
+				btorf("%d %s %d %d%s\n", nid, btor_op.c_str(), sid, nid_a, getinfo(*cell).c_str());
 			}
 
 			SigSpec sig = sigmap(cell->getPort(ID::Y));
@@ -577,9 +577,9 @@ struct BtorWorker
 				int tmp = nid;
 				nid = next_nid++;
 				btorf("%d ite %d %d %d %d\n", tmp, sid, nid_s, nid_b, nid_a);
-				btorf("%d not %d %d%s\n", nid, sid, tmp, getinfo(cell).c_str());
+				btorf("%d not %d %d%s\n", nid, sid, tmp, getinfo(*cell).c_str());
 			} else {
-				btorf("%d ite %d %d %d %d%s\n", nid, sid, nid_s, nid_b, nid_a, getinfo(cell).c_str());
+				btorf("%d ite %d %d %d %d%s\n", nid, sid, nid_s, nid_b, nid_a, getinfo(*cell).c_str());
 			}
 
 			add_nid_sig(nid, sig_y);
@@ -602,7 +602,7 @@ struct BtorWorker
 				int nid_s = get_sig_nid(sig_s.extract(i));
 				int nid2 = next_nid++;
 				if (i == GetSize(sig_s)-1)
-					btorf("%d ite %d %d %d %d%s\n", nid2, sid, nid_s, nid_b, nid, getinfo(cell).c_str());
+					btorf("%d ite %d %d %d %d%s\n", nid2, sid, nid_s, nid_b, nid, getinfo(*cell).c_str());
 				else
 					btorf("%d ite %d %d %d %d\n", nid2, sid, nid_s, nid_b, nid);
 				nid = nid2;
@@ -681,7 +681,7 @@ struct BtorWorker
 			int sid = get_bv_sid(GetSize(sig_y));
 			int nid = next_nid++;
 
-			btorf("%d state %d%s\n", nid, sid, getinfo(cell).c_str());
+			btorf("%d state %d%s\n", nid, sid, getinfo(*cell).c_str());
 
 			if (cell->type == ID($anyconst)) {
 				int nid2 = next_nid++;
@@ -702,7 +702,7 @@ struct BtorWorker
 				int one_nid = get_sig_nid(State::S1);
 				int zero_nid = get_sig_nid(State::S0);
 				initstate_nid = next_nid++;
-				btorf("%d state %d%s\n", initstate_nid, sid, getinfo(cell).c_str());
+				btorf("%d state %d%s\n", initstate_nid, sid, getinfo(*cell).c_str());
 				btorf("%d init %d %d %d\n", next_nid++, sid, initstate_nid, one_nid);
 				btorf("%d next %d %d %d\n", next_nid++, sid, initstate_nid, zero_nid);
 			}
@@ -1110,7 +1110,7 @@ struct BtorWorker
 			int sid = get_bv_sid(GetSize(sig));
 			int nid = next_nid++;
 
-			btorf("%d input %d%s\n", nid, sid, getinfo(wire).c_str());
+			btorf("%d input %d%s\n", nid, sid, getinfo(*wire).c_str());
 			add_nid_sig(nid, sig);
 
 			if (!info_filename.empty()) {
@@ -1144,7 +1144,7 @@ struct BtorWorker
 			btorf_push(stringf("output %s", log_id(wire)));
 
 			int nid = get_sig_nid(wire);
-			btorf("%d output %d%s\n", next_nid++, nid, getinfo(wire).c_str());
+			btorf("%d output %d%s\n", next_nid++, nid, getinfo(*wire).c_str());
 
 			btorf_pop(stringf("output %s", log_id(wire)));
 		}
@@ -1186,10 +1186,10 @@ struct BtorWorker
 					bad_properties.push_back(nid_en_and_not_a);
 				} else {
 					if (cover_mode) {
-						infof("bad %d%s\n", nid_en_and_not_a, getinfo(cell, true).c_str());
+						infof("bad %d%s\n", nid_en_and_not_a, getinfo(*cell, true).c_str());
 					} else {
 						int nid = next_nid++;
-						btorf("%d bad %d%s\n", nid, nid_en_and_not_a, getinfo(cell, true).c_str());
+						btorf("%d bad %d%s\n", nid, nid_en_and_not_a, getinfo(*cell, true).c_str());
 					}
 				}
 
@@ -1211,7 +1211,7 @@ struct BtorWorker
 					bad_properties.push_back(nid_en_and_a);
 				} else {
 					int nid = next_nid++;
-					btorf("%d bad %d%s\n", nid, nid_en_and_a, getinfo(cell, true).c_str());
+					btorf("%d bad %d%s\n", nid, nid_en_and_a, getinfo(*cell, true).c_str());
 				}
 
 				btorf_pop(log_id(cell));
@@ -1232,7 +1232,7 @@ struct BtorWorker
 				continue;
 
 			int this_nid = next_nid++;
-			btorf("%d uext %d %d %d%s\n", this_nid, sid, nid, 0, getinfo(wire).c_str());
+			btorf("%d uext %d %d %d%s\n", this_nid, sid, nid, 0, getinfo(*wire).c_str());
 			if (info_clocks.count(nid))
 				info_clocks[this_nid] |= info_clocks[nid];
 
@@ -1255,7 +1255,7 @@ struct BtorWorker
 				SigSpec sig = sigmap(cell->getPort(ID::D));
 				int nid_q = get_sig_nid(sig);
 				int sid = get_bv_sid(GetSize(sig));
-				btorf("%d next %d %d %d%s\n", next_nid++, sid, nid, nid_q, getinfo(cell).c_str());
+				btorf("%d next %d %d %d%s\n", next_nid++, sid, nid, nid_q, getinfo(*cell).c_str());
 
 				btorf_pop(stringf("next %s", log_id(cell)));
 			}
@@ -1314,7 +1314,7 @@ struct BtorWorker
 				}
 
 				int nid2 = next_nid++;
-				btorf("%d next %d %d %d%s\n", nid2, sid, nid, nid_head, (mem->cell ? getinfo(mem->cell) : getinfo(mem->mem)).c_str());
+				btorf("%d next %d %d %d%s\n", nid2, sid, nid, nid_head, (mem->cell ? getinfo(*mem->cell) : getinfo(*mem->mem)).c_str());
 
 				btorf_pop(stringf("next %s", log_id(mem->memid)));
 			}

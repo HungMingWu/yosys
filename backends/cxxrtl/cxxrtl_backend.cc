@@ -616,13 +616,13 @@ std::string escape_cxx_string(const std::string &input)
 	return output;
 }
 
-template<class T>
-std::string get_hdl_name(T *object)
+template <typename T>
+std::string get_hdl_name(const T &object)
 {
-	if (object->has_attribute(ID::hdlname))
-		return object->get_string_attribute(ID::hdlname);
+	if (object.has_attribute(ID::hdlname))
+		return object.get_string_attribute(ID::hdlname);
 	else
-		return object->name.str().substr(1);
+		return object.name.str().substr(1);
 }
 
 struct WireType {
@@ -2101,7 +2101,7 @@ struct CxxrtlWorker {
 						if (has_driven_sync + has_driven_comb + has_undriven > 1)
 							count_mixed_driver++;
 
-						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(wire));
+						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(*wire));
 						f << ", debug_item(" << mangle(wire) << ", " << wire->start_offset;
 						bool first = true;
 						for (auto flag : flags) {
@@ -2120,7 +2120,7 @@ struct CxxrtlWorker {
 					case WireType::ALIAS: {
 						// Alias of a member wire
 						const RTLIL::Wire *aliasee = debug_wire_type.sig_subst.as_wire();
-						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(wire));
+						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(*wire));
 						f << ", debug_item(";
 						// If the aliasee is an outline, then the alias must be an outline, too; otherwise downstream
 						// tooling has no way to find out about the outline.
@@ -2137,14 +2137,14 @@ struct CxxrtlWorker {
 						f << indent << "static const value<" << wire->width << "> const_" << mangle(wire) << " = ";
 						dump_const(debug_wire_type.sig_subst.as_const());
 						f << ";\n";
-						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(wire));
+						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(*wire));
 						f << ", debug_item(const_" << mangle(wire) << ", " << wire->start_offset << "));\n";
 						count_const_wires++;
 						break;
 					}
 					case WireType::OUTLINE: {
 						// Localized or inlined, but rematerializable wire
-						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(wire));
+						f << indent << "items.add(path + " << escape_cxx_string(get_hdl_name(*wire));
 						f << ", debug_item(debug_eval_outline, " << mangle(wire) << ", " << wire->start_offset << "));\n";
 						count_inline_wires++;
 						break;
@@ -2160,7 +2160,7 @@ struct CxxrtlWorker {
 				for (auto &mem : mod_memories[module]) {
 					if (!mem.memid.isPublic())
 						continue;
-					f << indent << "items.add(path + " << escape_cxx_string(mem.packed ? get_hdl_name(mem.cell) : get_hdl_name(mem.mem));
+					f << indent << "items.add(path + " << escape_cxx_string(mem.packed ? get_hdl_name(*mem.cell) : get_hdl_name(*mem.mem));
 					f << ", debug_item(" << mangle(&mem) << ", ";
 					f << mem.start_offset << "));\n";
 				}
@@ -2169,7 +2169,7 @@ struct CxxrtlWorker {
 						continue;
 					const char *access = is_cxxrtl_blackbox_cell(cell) ? "->" : ".";
 					f << indent << mangle(cell) << access << "debug_info(items, ";
-					f << "path + " << escape_cxx_string(get_hdl_name(cell) + ' ') << ");\n";
+					f << "path + " << escape_cxx_string(get_hdl_name(*cell) + ' ') << ");\n";
 				}
 			}
 		dec_indent();
@@ -2299,7 +2299,7 @@ struct CxxrtlWorker {
 					if (cell_module->get_bool_attribute(ID(cxxrtl_blackbox))) {
 						f << indent << "std::unique_ptr<" << mangle(cell_module) << template_args(cell) << "> ";
 						f << mangle(cell) << " = " << mangle(cell_module) << template_args(cell);
-						f << "::create(" << escape_cxx_string(get_hdl_name(cell)) << ", ";
+						f << "::create(" << escape_cxx_string(get_hdl_name(*cell)) << ", ";
 						dump_metadata_map(cell->parameters);
 						f << ", ";
 						dump_metadata_map(cell->attributes);
